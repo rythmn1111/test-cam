@@ -45,6 +45,7 @@ Type=simple
 User=$ACTUAL_USER
 Group=$ACTUAL_USER
 WorkingDirectory=$POCKETBASE_DIR
+Environment="PB_CORS_ALLOW_ORIGINS=*"
 ExecStart=$POCKETBASE_DIR/pocketbase serve --http="0.0.0.0:$PORT"
 Restart=always
 RestartSec=5

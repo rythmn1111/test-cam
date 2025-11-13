@@ -210,30 +210,9 @@ migrate((db) => {
 });
 EOF
 
-# Create CORS configuration
-echo "🌐 Setting up CORS..."
-cat > pb_hooks/cors.pb.js << 'EOF'
-/// <reference path="../pb_data/types.d.ts" />
-
-onBeforeServe((e) => {
-  e.router.use((next) => {
-    return (c) => {
-      c.response().header().set('Access-Control-Allow-Origin', '*')
-      c.response().header().set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-      c.response().header().set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-      c.response().header().set('Access-Control-Max-Age', '86400')
-
-      if (c.request().method == 'OPTIONS') {
-        return c.noContent(204)
-      }
-
-      return next(c)
-    }
-  })
-})
-EOF
-
-echo -e "${GREEN}✓ Schema and CORS configured${NC}"
+# Skip CORS hook - will configure via environment variable instead
+echo "🌐 CORS will be configured via environment variable"
+echo -e "${GREEN}✓ Schema configured${NC}"
 
 # Get server IP
 SERVER_IP=$(hostname -I | awk '{print $1}')
@@ -259,8 +238,9 @@ read -p "Start PocketBase now? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo ""
-    echo "🎉 Starting PocketBase..."
+    echo "🎉 Starting PocketBase with CORS enabled..."
     echo "   Press Ctrl+C to stop"
     echo ""
-    ./pocketbase serve --http="0.0.0.0:$PORT"
+    # Start with CORS environment variable
+    PB_CORS_ALLOW_ORIGINS="*" ./pocketbase serve --http="0.0.0.0:$PORT"
 fi

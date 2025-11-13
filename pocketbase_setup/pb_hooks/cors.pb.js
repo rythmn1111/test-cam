@@ -1,32 +1,29 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 // CORS configuration for SnapParty app
-onBeforeServe((e) => {
-  e.router.use((next) => {
-    return (c) => {
-      // Allow all origins (for development)
-      // For production, replace * with your specific domain
-      c.response().header().set('Access-Control-Allow-Origin', '*')
-      c.response().header().set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-      c.response().header().set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-      c.response().header().set('Access-Control-Max-Age', '86400') // 24 hours
+routerAdd("GET", "/*", (c) => {
+  c.response().header().set('Access-Control-Allow-Origin', '*')
+  return c.next()
+}, $apis.requireGuestOnly())
 
-      // Handle preflight requests
-      if (c.request().method == 'OPTIONS') {
-        return c.noContent(204)
-      }
+routerAdd("POST", "/*", (c) => {
+  c.response().header().set('Access-Control-Allow-Origin', '*')
+  return c.next()
+}, $apis.requireGuestOnly())
 
-      return next(c)
-    }
-  })
-})
+routerAdd("PATCH", "/*", (c) => {
+  c.response().header().set('Access-Control-Allow-Origin', '*')
+  return c.next()
+}, $apis.requireGuestOnly())
 
-// Optional: Log API requests for debugging
-onBeforeServe((e) => {
-  e.router.use((next) => {
-    return (c) => {
-      console.log(`[${new Date().toISOString()}] ${c.request().method} ${c.request().url}`)
-      return next(c)
-    }
-  })
-})
+routerAdd("DELETE", "/*", (c) => {
+  c.next()
+}, $apis.requireGuestOnly())
+
+routerAdd("OPTIONS", "/*", (c) => {
+  c.response().header().set('Access-Control-Allow-Origin', '*')
+  c.response().header().set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+  c.response().header().set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  c.response().header().set('Access-Control-Max-Age', '86400')
+  return c.noContent(204)
+}, $apis.requireGuestOnly())
